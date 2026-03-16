@@ -28,16 +28,16 @@ const QueryRouter = (() => {
   };
 
   // ── CONTEXT BUILDER ──────────────────────────────────────
-  const buildContext = (intent) => {
-    const stats = KnowledgeGraph.stats();          // ← FIXED: call as function
+  const buildContext = (intent, query) => {
+    const stats = KnowledgeGraph.stats();
     if (stats.files === 0) return '';
-    return KnowledgeGraph.buildContextSummary(query);
+    return KnowledgeGraph.buildContextSummary(query || '');
   };
 
   // ── PREPARE ROUTE (used by streaming path in app.js) ────
   const prepareRoute = (query) => {
     const intent = detectIntent(query);
-    const context = buildContext(intent);
+    const context = buildContext(intent, query);
     return { intent, context };
   };
 
@@ -50,7 +50,7 @@ const QueryRouter = (() => {
   // ── ROUTE ────────────────────────────────────────────────
   const route = async (query) => {
     const intent = detectIntent(query);
-    const context = buildContext(intent);
+    const context = buildContext(intent, query);
 
     const enrichedQuery = `${query}\n\n[Intent: ${intent}]`;
 
