@@ -25,10 +25,10 @@ const FileManager = (() => {
 
   // ── SCHEMA DETECTION ────────────────────────────────────
   const detectSchema = (headers, rows) => {
-    const haystack = (headers.join(' ') + ' ' + rows.slice(0, 5).map(r => Object.values(r).join(' ')).join(' ')).toLowerCase();
+    const haystack = (headers.join(' ') + ' ' + rows.slice(0, 3).map(r => Object.values(r).join(' ')).join(' ')).toLowerCase();
     let best = { schema: 'UNKNOWN', score: 0 };
     for (const [schema, keywords] of Object.entries(CONFIG.SCHEMA_PATTERNS)) {
-      const score = keywords.filter(k => haystack.includes(k)).length / keywords.length;
+      const score = keywords.filter(k => haystack.includes(k.toLowerCase())).length / keywords.length;
       if (score > best.score) best = { schema, score };
     }
     return best.score >= CONFIG.SCHEMA_CONFIDENCE_THRESHOLD ? best.schema : 'UNKNOWN';
@@ -306,7 +306,8 @@ const FileManager = (() => {
         return obj;
       });
 
-      const schema = detectSchema(normalHeaders, rowObjects);
+      // Detect schema using RAW headers (before normalization) so patterns match original column names
+      const schema = detectSchema(rawHeaders, rowObjects);
       results.push({ sheetName, headers: normalHeaders, rows: rowObjects, schema, count: rowObjects.length });
     }
     return results;
