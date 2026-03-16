@@ -20,7 +20,7 @@ const CONFIG = {
   STREAM: false,                  // streaming disabled (sendStreaming not implemented)
 
   // ── PROCESSING ───────────────────────────────────────────────────────────
-  SCHEMA_CONFIDENCE_THRESHOLD: 0.6,
+  SCHEMA_CONFIDENCE_THRESHOLD: 0.3,
 
   // ── MUMBAI MICRO-MARKETS ─────────────────────────────────────────────────
   MARKETS: {
@@ -36,8 +36,8 @@ const CONFIG = {
 
   // ── SCHEMA DETECTION KEYWORDS ────────────────────────────────────────────
   SCHEMA_PATTERNS: {
-    LEASE_DATABASE:     ['tenant','landlord','lockin period','lease expiry date','commencement date','current rent (chargeable)','lock-in expiry rental','notice period','rent escalation'],
-    PROPERTY_INVENTORY: ['bua (sq.ft)','carpet area (sq.ft)','quoted rent/sq.ft./per mth.','available (yes/no)','handover cond','possession','developer/ investor/ landlord','contacts details'],
+    LEASE_DATABASE:     ['Tenant','Landlord','Lockin Period','Lease Expiry Date','Commencement Date','Current Rent (Chargeable)','Landlord Representative','Tenant Representative'],
+    PROPERTY_INVENTORY: ['BUA (Sq.ft)','QUOTED RENT/SQ.FT./PER MTH.','AVAILABLE (YES/NO)','HANDOVER COND','DEVELOPER/ INVESTOR/ LANDLORD','CONTACTS DETAILS','Building Name'],
     TENANT_DATABASE:    ['requirement','sector','industry','headcount','preferred','timeline','budget','seat','workstation'],
     FINANCIAL_DATA:     ['yield','irr','cap rate','noi','revenue','escalation','return','investment','valuation'],
     DEAL_PIPELINE:      ['stage','status','pipeline','broker','deal','shortlisted','loi','mou','negotiation'],
