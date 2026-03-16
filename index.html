@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRE Intelligence Hub — Nexus Asia</title>
+  <meta name="description" content="AI-powered Commercial Real Estate intelligence platform for Mumbai. Built by Nexus Asia." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+  <!-- GLOBAL DRAG OVERLAY -->
+  <div id="drag-overlay" class="drag-overlay hidden">
+    <div class="drag-overlay-content">
+      <div class="drag-overlay-icon"></div>
+      <div class="drag-overlay-text">Drop to analyze your CRE files 📂</div>
+      <div class="drag-overlay-sub">Excel · CSV · PDF · Word · TXT · ZIP · RAR</div>
+    </div>
+  </div>
+
+  <!-- MOBILE HAMBURGER -->
+  <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle sidebar">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- APP WRAPPER -->
+  <div class="app-wrapper">
+
+    <!-- LEFT SIDEBAR -->
+    <aside id="left-sidebar" class="left-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon"></div>
+        <div class="logo-text">
+          <span class="logo-title">CRE Intelligence Hub</span>
+          <span class="logo-sub">Powered by Nexus Asia</span>
+        </div>
+      </div>
+
+      <!-- Active Files -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span>📂 Active Files</span>
+          <span id="file-count-badge" class="badge">0</span>
+        </div>
+        <div id="active-files-list" class="active-files-list">
+          <div class="empty-state-small">No files uploaded yet</div>
+        </div>
+        <button id="add-more-files-btn" class="btn-sidebar-add" onclick="document.getElementById('main-file-input').click()">➕ Add More Files</button>
+      </div>
+
+      <!-- Saved Deals (Supabase) -->
+      <div class="sidebar-section" id="saved-deals-section">
+        <div class="sidebar-section-header">💾 Saved Deals</div>
+        <div id="saved-deals-list" class="recent-queries-list">
+          <div class="empty-state-small">No saved deals yet</div>
+        </div>
+      </div>
+
+      <!-- Recent Queries -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">🕒 Recent Queries</div>
+        <div id="recent-queries-list" class="recent-queries-list">
+          <div class="empty-state-small">No queries yet</div>
+        </div>
+      </div>
+
+      <!-- Session Stats -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">📊 Session Stats</div>
+        <div class="session-stats-grid">
+          <div class="stat-item"><span class="stat-value" id="stat-files">0</span><span class="stat-label">Files Loaded</span></div>
+          <div class="stat-item"><span class="stat-value" id="stat-properties">0</span><span class="stat-label">Properties</span></div>
+          <div class="stat-item"><span class="stat-value" id="stat-leases">0</span><span class="stat-label">Leases</span></div>
+          <div class="stat-item"><span class="stat-value" id="stat-contacts">0</span><span class="stat-label">Contacts</span></div>
+        </div>
+      </div>
+
+      <!-- Clear Session -->
+      <div class="sidebar-bottom">
+        <button id="clear-session-btn" class="btn-clear-session" onclick="App.clearSession()">🗑 Clear Session</button>
+      </div>
+    </aside>
+
+    <!-- Sidebar overlay (mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay hidden" onclick="App.closeSidebar()"></div>
+
+    <!-- CENTER PANEL -->
+    <main class="center-panel">
+      <div class="chat-topbar">
+        <div class="chat-topbar-left">
+          <h1 class="chat-title">CRE Intelligence Chat</h1>
+          <p class="chat-subtitle">Ask anything about your uploaded data</p>
+        </div>
+        <div class="chat-topbar-right">
+          <div class="model-badge" id="grok-key-btn" title="Click to set API key" style="cursor:pointer;"><span class="model-lightning">⚡</span><span>Groq AI</span></div>
+          <div class="connection-status" id="connection-status" title="Connected">
+            <span class="status-dot green"></span>
+            <span class="status-text">Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Messages -->
+      <div class="chat-messages" id="chat-messages"></div>
+
+      <!-- Input Area -->
+      <div class="chat-input-area">
+        <div class="quick-chips" id="quick-chips">
+          <button class="chip" data-query="Show all available properties in Mumbai below ₹150/sqft with building name, floor, and contact details">🔍 Find Properties</button>
+          <button class="chip" data-query="Show all leases expiring in 2025 and 2026 with tenant name, building, current rent and lock-in details">📋 Expiring Leases</button>
+          <button class="chip" data-query="Extract all landlord, developer, and broker contacts with names, phone numbers, and emails from uploaded files">👥 Extract Contacts</button>
+          <button class="chip" data-query="Generate a comprehensive market intelligence report for all Mumbai micro-markets from the uploaded data">📊 Market Report</button>
+          <button class="chip" data-query="Match available properties with tenant requirements from the uploaded databases and give fit scores">🤝 Match Deals</button>
+          <button class="chip" data-query="Flag all underpriced properties, distressed assets, and tenants approaching lock-in expiry as opportunities">⚠️ Flag Opportunities</button>
+        </div>
+        <div class="input-row">
+          <button class="attach-btn" id="attach-btn" title="Attach files" onclick="document.getElementById('main-file-input').click()">📎</button>
+          <textarea id="chat-input" class="chat-textarea" placeholder="Ask me anything about your CRE data..." rows="1" maxlength="4000"></textarea>
+          <button id="send-btn" class="send-btn" disabled aria-label="Send message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint">Press Enter to send · Shift+Enter for new line · Max 4,000 chars</div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel" id="right-panel">
+      <!-- Upload Zone -->
+      <div class="right-section">
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="main-file-input" multiple accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,.txt,.zip,.rar" style="display:none" />
+          <div class="upload-icon" id="upload-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 16 12 12 8 16"></polyline>
+              <line x1="12" y1="12" x2="12" y2="21"></line>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+            </svg>
+          </div>
+          <div class="upload-text">Drop files here or click to browse</div>
+          <div class="upload-sub">Excel, CSV, PDF, Word, TXT, ZIP, RAR · Max 50MB each</div>
+          <div class="format-badges">
+            <span class="fmt-badge excel">.xlsx</span><span class="fmt-badge excel">.xls</span>
+            <span class="fmt-badge csv">.csv</span><span class="fmt-badge pdf">.pdf</span>
+            <span class="fmt-badge word">.doc</span><span class="fmt-badge word">.docx</span>
+            <span class="fmt-badge txt">.txt</span><span class="fmt-badge zip">.zip</span>
+            <span class="fmt-badge zip">.rar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processing Queue -->
+      <div class="right-section" id="processing-queue-section" style="display:none">
+        <div class="right-section-title">Processing Queue</div>
+        <div id="processing-queue" class="processing-queue"></div>
+      </div>
+
+      <!-- Quick Insights -->
+      <div class="right-section" id="quick-insights-section">
+        <div class="right-section-title">Quick Insights</div>
+        <div id="quick-insights-content" class="quick-insights-empty">
+          <div class="insights-placeholder">
+            <div class="insights-placeholder-icon"></div>
+            <div class="insights-placeholder-text">Upload files to see instant insights</div>
+          </div>
+        </div>
+        <button id="export-summary-btn" class="btn-export" style="display:none" onclick="App.exportSummary()">📥 Export Summary</button>
+      </div>
+
+      <!-- Market Benchmarks -->
+      <div class="right-section">
+        <div class="right-section-title">Market Benchmarks</div>
+        <div class="market-benchmarks">
+          <div class="benchmark-item"><span class="benchmark-market">BKC / New CBD</span><span class="benchmark-range">₹300–600</span></div>
+          <div class="benchmark-item"><span class="benchmark-market">Nariman Pt / Fort</span><span class="benchmark-range">₹200–400</span></div>
+          <div class="benchmark-item"><span class="benchmark-market">Andheri East/West</span><span class="benchmark-range">₹80–180</span></div>
+          <div class="benchmark-item"><span class="benchmark-market">Goregaon / Malad</span><span class="benchmark-range">₹70–150</span></div>
+          <div class="benchmark-item"><span class="benchmark-market">Worli / Lower Parel</span><span class="benchmark-range">₹100–250</span></div>
+          <div class="benchmark-item"><span class="benchmark-market">Navi Mumbai</span><span class="benchmark-range">₹50–120</span></div>
+          <div class="benchmark-item"><span class="benchmark-market">Thane</span><span class="benchmark-range">₹40–100</span></div>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- .app-wrapper -->
+
+  <!-- Mobile floating Files button -->
+  <button id="mobile-files-btn" class="mobile-files-btn" onclick="App.toggleRightPanel()">📂 Files</button>
+
+  <!-- Right panel overlay (mobile) -->
+  <div id="right-overlay" class="sidebar-overlay hidden" onclick="App.closeRightPanel()"></div>
+
+  <!-- ── SCRIPTS ── -->
+  <!-- SheetJS for Excel/CSV -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- API Key Modal -->
+  <div id="api-key-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#1a1f2e;border:1px solid #2a3148;border-radius:14px;padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+      <div style="font-size:28px;margin-bottom:8px;">🔑</div>
+      <h2 style="color:#e2e8f0;margin:0 0 6px;font-size:18px;">Enter your Groq API Key</h2>
+      <p style="color:#64748b;font-size:13px;margin:0 0 20px;">
+        Get a free key at <a href="https://console.groq.com" target="_blank" style="color:#4f9cf9;">console.groq.com</a> — saved in your browser only, never sent anywhere else.
+      </p>
+      <input id="api-key-input" type="password" placeholder="gsk_xxxxxxxxxxxxxxxx"
+        style="width:100%;box-sizing:border-box;padding:11px 14px;background:#0f1420;border:1px solid #2a3148;border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;margin-bottom:16px;"
+        autocomplete="off" spellcheck="false" />
+      <div id="api-key-error" style="color:#f87171;font-size:12px;margin-bottom:12px;display:none;">Please enter a valid API key.</div>
+      <div style="display:flex;gap:10px;">
+        <button id="api-key-save-btn"
+          style="flex:1;padding:11px;background:#4f9cf9;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+          Save & Connect
+        </button>
+        <button id="api-key-cancel-btn"
+          style="padding:11px 18px;background:#2a3148;color:#94a3b8;border:none;border-radius:8px;font-size:14px;cursor:pointer;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mammoth for DOCX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <!-- JSZip for ZIP files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- App Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/knowledgeGraph.js"></script>
+  <script src="js/fileManager.js"></script>
+  <script src="js/chatEngine.js"></script>
+  <script src="js/queryRouter.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/grokClient.js"></script>
+  <script src="js/reportGenerator.js"></script>
+  <script src="js/uiController.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
